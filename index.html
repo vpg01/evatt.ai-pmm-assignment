@@ -1,0 +1,1609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Evatt AI — PMM Assignment</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,900;1,400&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1E1B4B;
+    --paper: #FAFBFF;
+    --cream: #F2F5FF;
+    --gold: #4F46E5;
+    --gold-light: #C7D2FE;
+    --red: #4338CA;
+    --muted: #64748B;
+    --border: #DCE3F3;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    overflow-x: hidden;
+  }
+
+  /* NOISE TEXTURE OVERLAY */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.5;
+  }
+
+  /* HEADER */
+  header {
+    min-height: 100vh;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    padding: 2.5rem 4rem;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: -120px;
+    right: -80px;
+    width: 600px;
+    height: 600px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  header::before {
+    content: '';
+    position: absolute;
+    bottom: -200px;
+    right: -160px;
+    width: 800px;
+    height: 800px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    opacity: 0.3;
+    pointer-events: none;
+  }
+
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    opacity: 0;
+    transform: translateY(-10px);
+    animation: fadeUp 0.7s ease forwards 0.1s;
+  }
+
+  .logo-area {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .logo-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .logo-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+
+  .header-meta {
+    text-align: right;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    line-height: 1.8;
+  }
+
+  .header-center {
+    display: flex;
+    align-items: center;
+    padding: 4rem 0;
+  }
+
+  .hero-text {
+    max-width: 700px;
+  }
+
+  .hero-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: fadeUp 0.7s ease forwards 0.3s;
+  }
+
+  .hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(3rem, 7vw, 6rem);
+    font-weight: 900;
+    line-height: 1.0;
+    letter-spacing: -0.02em;
+    margin-bottom: 2rem;
+    opacity: 0;
+    animation: fadeUp 0.7s ease forwards 0.45s;
+  }
+
+  .hero-title em {
+    font-style: italic;
+    color: var(--gold);
+  }
+
+  .hero-note {
+    font-size: 1rem;
+    color: var(--muted);
+    line-height: 1.7;
+    max-width: 500px;
+    border-left: 2px solid var(--gold);
+    padding-left: 1.25rem;
+    opacity: 0;
+    animation: fadeUp 0.7s ease forwards 0.6s;
+  }
+
+  .header-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    opacity: 0;
+    animation: fadeUp 0.7s ease forwards 0.75s;
+  }
+
+  .toc-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.75rem;
+  }
+
+  .toc-list {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    list-style: none;
+    max-width: 600px;
+  }
+
+  .toc-list a {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--ink);
+    text-decoration: none;
+    padding: 0.3rem 0.7rem;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    transition: all 0.2s ease;
+    background: transparent;
+  }
+
+  .toc-list a:hover {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+  }
+
+  .scroll-hint {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--muted);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .scroll-arrow {
+    display: inline-block;
+    animation: bounce 2s ease infinite;
+  }
+
+  /* MAIN LAYOUT */
+  main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 4rem;
+  }
+
+  /* SECTION */
+  .section {
+    padding: 6rem 0;
+    border-bottom: 1px solid var(--border);
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+
+  .section.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .section-header {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 2rem;
+    margin-bottom: 3.5rem;
+    align-items: start;
+  }
+
+  .section-number {
+    font-family: 'Playfair Display', serif;
+    font-size: 4rem;
+    font-weight: 900;
+    color: var(--cream);
+    line-height: 1;
+    user-select: none;
+    letter-spacing: -0.03em;
+  }
+
+  .section-title-block {
+    padding-top: 0.5rem;
+  }
+
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.5rem;
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.4rem, 3vw, 2rem);
+    font-weight: 600;
+    line-height: 1.2;
+  }
+
+  /* CONTENT BLOCKS */
+  .prose {
+    font-size: 0.95rem;
+    line-height: 1.85;
+    color: #2a2620;
+    max-width: 680px;
+  }
+
+  .prose p { margin-bottom: 1rem; }
+
+  /* CARDS GRID */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.5px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    margin: 2rem 0;
+  }
+
+  .card {
+    background: var(--paper);
+    padding: 1.75rem;
+    transition: background 0.2s ease;
+    cursor: default;
+  }
+
+  .card:hover { background: var(--cream); }
+
+  .card-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.75rem;
+  }
+
+  .card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    line-height: 1.3;
+  }
+
+  .card-body {
+    font-size: 0.85rem;
+    color: var(--muted);
+    line-height: 1.65;
+  }
+
+  /* TIMELINE */
+  .timeline {
+    position: relative;
+    padding-left: 2rem;
+    margin: 2rem 0;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 8px;
+    bottom: 8px;
+    width: 1px;
+    background: var(--border);
+  }
+
+  .timeline-item {
+    position: relative;
+    padding-bottom: 2rem;
+    padding-left: 1.5rem;
+  }
+
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -2rem;
+    top: 8px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--gold);
+    border: 2px solid var(--paper);
+    outline: 1px solid var(--gold);
+  }
+
+  .timeline-period {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.4rem;
+  }
+
+  .timeline-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+  }
+
+  .timeline-body {
+    font-size: 0.85rem;
+    color: var(--muted);
+    line-height: 1.65;
+  }
+
+  /* TABLE */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 2rem 0;
+    font-size: 0.85rem;
+  }
+
+  .data-table th {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: left;
+    padding: 0.75rem 1rem;
+    border-bottom: 2px solid var(--border);
+    background: var(--cream);
+  }
+
+  .data-table td {
+    padding: 0.9rem 1rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    line-height: 1.5;
+  }
+
+  .data-table tr:hover td { background: var(--cream); }
+
+  .badge {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border-radius: 2px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.08em;
+    font-weight: 500;
+  }
+
+  .badge-high { background: #e8f4ea; color: #2d6a35; }
+  .badge-med { background: #fef6e4; color: #8a6200; }
+  .badge-low { background: #fde8e8; color: #8a1e1e; }
+
+  /* CALLOUT */
+  .callout {
+    border-left: 3px solid var(--gold);
+    padding: 1.25rem 1.5rem;
+    background: var(--cream);
+    margin: 2rem 0;
+    font-style: italic;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: #2a2620;
+  }
+
+  .callout cite {
+    display: block;
+    font-style: normal;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    margin-top: 0.75rem;
+  }
+
+  /* MESSAGING FRAMEWORK */
+  .framework {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    margin: 2rem 0;
+  }
+
+  .framework-block {
+    background: var(--paper);
+    padding: 2rem;
+    transition: background 0.2s ease;
+  }
+
+  .framework-block:hover { background: var(--cream); }
+
+  .fw-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: var(--gold-light);
+    line-height: 1;
+    margin-bottom: 0.5rem;
+  }
+
+  .fw-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.5rem;
+  }
+
+  .fw-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    line-height: 1.3;
+  }
+
+  .fw-body {
+    font-size: 0.85rem;
+    color: var(--muted);
+    line-height: 1.65;
+  }
+
+  /* BUDGET VIZ */
+  .budget-bars {
+    margin: 2rem 0;
+  }
+
+  .budget-row {
+    display: grid;
+    grid-template-columns: 180px 1fr 60px;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 0.9rem;
+  }
+
+  .budget-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.05em;
+    color: var(--ink);
+  }
+
+  .budget-bar-track {
+    height: 6px;
+    background: var(--cream);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .budget-bar-fill {
+    height: 100%;
+    background: var(--gold);
+    border-radius: 3px;
+    width: 0;
+    transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .budget-amount {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    text-align: right;
+  }
+
+  /* LINKEDIN POSTS */
+  .linkedin-post {
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.75rem;
+    margin: 1.5rem 0;
+    background: white;
+    position: relative;
+  }
+
+  .linkedin-post::before {
+    content: 'LinkedIn';
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #0077b5;
+    opacity: 0.7;
+  }
+
+  .post-author {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .post-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--ink), #333);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gold);
+    font-family: 'Playfair Display', serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  .post-author-name {
+    font-weight: 500;
+    font-size: 0.85rem;
+  }
+
+  .post-author-title {
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+
+  .post-body {
+    font-size: 0.875rem;
+    line-height: 1.75;
+    color: #2a2620;
+    white-space: pre-line;
+  }
+
+  /* NEWSLETTER */
+  .newsletter-issue {
+    border: 1px solid var(--border);
+    margin: 2rem 0;
+    overflow: hidden;
+  }
+
+  .newsletter-header {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 2rem;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: end;
+    gap: 1rem;
+  }
+
+  .newsletter-masthead {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 900;
+    letter-spacing: -0.01em;
+  }
+
+  .newsletter-issue-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    color: var(--gold);
+    text-transform: uppercase;
+  }
+
+  .newsletter-subject {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: rgba(245, 242, 235, 0.6);
+    margin-top: 0.25rem;
+    letter-spacing: 0.05em;
+  }
+
+  .newsletter-body {
+    padding: 2rem;
+  }
+
+  .newsletter-section {
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .newsletter-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+  }
+
+  .newsletter-section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.5rem;
+  }
+
+  .newsletter-section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    line-height: 1.3;
+  }
+
+  .newsletter-section-body {
+    font-size: 0.875rem;
+    line-height: 1.75;
+    color: #2a2620;
+  }
+
+  .newsletter-cta {
+    display: inline-block;
+    background: var(--ink);
+    color: var(--paper);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.75rem 1.5rem;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    margin-top: 1rem;
+    transition: background 0.2s ease;
+  }
+
+  .newsletter-cta:hover { background: var(--gold); color: var(--ink); }
+
+  /* VIDEO IDEAS */
+  .video-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    margin: 2rem 0;
+  }
+
+  .video-card {
+    background: var(--paper);
+    padding: 1.75rem;
+    transition: background 0.2s ease;
+    cursor: default;
+  }
+
+  .video-card:hover { background: var(--cream); }
+
+  .video-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 3rem;
+    font-weight: 900;
+    color: var(--cream);
+    line-height: 1;
+    margin-bottom: 0.75rem;
+  }
+
+  .video-hook {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 1rem;
+    line-height: 1.4;
+    margin-bottom: 0.75rem;
+    color: var(--ink);
+    border-left: 2px solid var(--gold);
+    padding-left: 0.75rem;
+  }
+
+  .video-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .video-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.5rem;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    border-radius: 2px;
+  }
+
+  .video-concept {
+    font-size: 0.82rem;
+    color: var(--muted);
+    line-height: 1.65;
+    margin-bottom: 0.75rem;
+  }
+
+  .video-cta-line {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--gold);
+    letter-spacing: 0.05em;
+  }
+
+  /* FOOTER */
+  footer {
+    padding: 4rem;
+    text-align: center;
+    border-top: 1px solid var(--border);
+  }
+
+  .footer-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  .footer-sub {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  /* INTRO NOTE EXPANDABLE */
+  .intro-note {
+    background: var(--cream);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--red);
+    padding: 1.5rem;
+    margin: 2rem 0;
+    font-size: 0.875rem;
+    line-height: 1.7;
+    color: #2a2620;
+  }
+
+  .intro-note strong {
+    font-weight: 500;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--red);
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+
+  /* DIVIDER */
+  .rule {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 2rem 0;
+  }
+
+  /* HIRING TIMELINE */
+  .hire-steps {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    margin: 2rem 0;
+  }
+
+  .hire-step {
+    background: var(--paper);
+    padding: 1.75rem;
+    transition: background 0.2s ease;
+  }
+
+  .hire-step:hover { background: var(--cream); }
+
+  .hire-month {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.5rem;
+  }
+
+  .hire-role {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  .hire-reason {
+    font-size: 0.82rem;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(4px); }
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    header, main, footer { padding-left: 1.5rem; padding-right: 1.5rem; }
+    .header-top { flex-direction: column; gap: 1rem; }
+    .header-meta { text-align: left; }
+    .framework { grid-template-columns: 1fr; }
+    .video-cards { grid-template-columns: 1fr; }
+    .hire-steps { grid-template-columns: 1fr; }
+    .budget-row { grid-template-columns: 120px 1fr 50px; }
+    .section-header { grid-template-columns: 50px 1fr; gap: 1rem; }
+    .section-number { font-size: 2.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-top">
+    <div class="logo-area">
+      <span class="logo-label">Submission for</span>
+      <span class="logo-name">Evatt AI</span>
+    </div>
+    <div class="header-meta">
+      Product Marketing Manager Assignment<br>
+      Vishnu - June 2026<br>
+      8 Questions &middot; One POV
+    </div>
+  </div>
+
+  <div class="header-center">
+    <div class="hero-text">
+      <div class="hero-eyebrow">PMM Assignment - Evatt AI</div>
+      <h1 class="hero-title">Thinking<br>like a <em>PMM.</em><br>From day<br>one.</h1>
+      <p class="hero-note">Eight questions. One point of view. I've answered each one the way I'd approach the role - with clear priorities, honest instincts, and a bias toward execution over comprehensiveness.</p>
+    </div>
+  </div>
+
+  <div class="header-bottom">
+    <div>
+      <div class="toc-label">Jump to</div>
+      <ul class="toc-list">
+        <li><a href="#q1">Website Audit</a></li>
+        <li><a href="#q2">90 Days</a></li>
+        <li><a href="#q3">ICP &amp; GTM</a></li>
+        <li><a href="#q4">Founder Brand</a></li>
+        <li><a href="#q5">Newsletter</a></li>
+        <li><a href="#q6">Launch</a></li>
+        <li><a href="#q7">Team Design</a></li>
+        <li><a href="#q8">Video</a></li>
+      </ul>
+    </div>
+    <div class="scroll-hint">Scroll <span class="scroll-arrow">↓</span></div>
+  </div>
+</header>
+
+<main>
+
+  <!-- INTRO NOTE -->
+  <div class="section visible" style="padding: 3rem 0 2rem;">
+    <div class="intro-note">
+      <strong>Before I begin</strong>
+      I spent time with the Evatt AI website, a few competitor sites, and the broader Australian legal AI landscape before writing a single word of this. What follows reflects that. Each answer is written from the perspective of someone already thinking about how to make Evatt win - not someone completing an exercise.
+    </div>
+  </div>
+
+  <!-- Q1: WEBSITE AUDIT -->
+  <section class="section" id="q1">
+    <div class="section-header">
+      <div class="section-number">01</div>
+      <div class="section-title-block">
+        <div class="section-label">Question One</div>
+        <h2 class="section-title">Website Audit, Messaging &amp; Competitive Analysis</h2>
+      </div>
+    </div>
+
+    <div class="prose">
+      <p><strong>First impression.</strong> Evatt AI is an AI assistant for legal professionals - covering research, drafting, and document review. The ICP appears to be solo lawyers and small-to-mid-sized firms who need AI tooling without enterprise procurement.</p>
+      <p>The product is clear enough. The <em>reason to trust it</em> is not.</p>
+      <p>Within 30 seconds, a prospective user - especially a lawyer - will ask: who else is using this? What firm? What outcome? The website doesn't answer that. Features are listed. Trust is not established.</p>
+    </div>
+
+    <div class="callout">
+      "What would stop me from signing up: no social proof above the fold, no case studies, no firm logos, no visible founder presence. For legal professionals, trust <em>is</em> the product."
+    </div>
+
+    <div class="cards">
+      <div class="card">
+        <div class="card-label">Missing</div>
+        <div class="card-title">Trust Signals</div>
+        <div class="card-body">No customer logos, no testimonials, no case studies, no usage numbers, no press mentions. Every element lawyers look for before trusting a new tool.</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Missing</div>
+        <div class="card-title">Content Infrastructure</div>
+        <div class="card-body">No comparison page (Evatt vs Harvey vs Clio vs ChatGPT), no ROI calculator, no use-case pages by practice area.</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Gap</div>
+        <div class="card-title">Messaging</div>
+        <div class="card-body">The website explains what Evatt does. It doesn't explain why Evatt is the right choice over the three other tools a lawyer already has open in another tab.</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Gap</div>
+        <div class="card-title">Founder Presence</div>
+        <div class="card-body">None visible. For an early-stage B2B product in a trust-sensitive category, this is a meaningful gap. Ashley's story is an asset that isn't being used.</div>
+      </div>
+    </div>
+
+    <h3 style="font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 600; margin: 2.5rem 0 1rem;">Competitive Snapshot</h3>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Competitor</th>
+          <th>Their Strength</th>
+          <th>Evatt's Angle</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Harvey</strong></td>
+          <td>Leads with "trusted by Am Law 200 firms" above the fold. Social proof is the entire opening argument. No Australian presence or localised content.</td>
+          <td>Harvey doesn't serve small firms and has no footprint in Australian legal market content or partnerships. Evatt can own the Australian practitioner before Harvey arrives.</td>
+        </tr>
+        <tr>
+          <td><strong>Clio</strong></td>
+          <td>Owns law firm operations. Strong SEO, deep content, heavy community investment. Recently expanded Clio Duo (AI layer) in ANZ market.</td>
+          <td>Clio is practice management first, AI second. Evatt is AI-native. For lawyers who want research and drafting capability without switching their entire stack, Evatt is the lighter lift.</td>
+        </tr>
+        <tr>
+          <td><strong>Lexis+ AI</strong></td>
+          <td>Deep Australian case law and legislation coverage. LexisNexis has existing relationships with Australian firms of all sizes.</td>
+          <td>Evatt's clearest displacement for cost-sensitive firms: same Australian legal research capability at a fraction of the price, without a sales rep and a multi-year contract.</td>
+        </tr>
+        <tr>
+          <td><strong>ChatGPT</strong></td>
+          <td>Every lawyer has already tried it. Zero switching cost. Free tier removes the budget objection entirely.</td>
+          <td>Evatt must explicitly answer "why not just use ChatGPT." Not generic AI safety - specific failure modes: no Australian case law, no citation standards, no source grounding. This is the most important conversion argument and it's currently absent from the site.</td>
+        </tr>
+        <tr>
+          <td><strong>The gap Evatt isn't filling yet</strong></td>
+          <td colspan="2">No Australian legal AI tool is currently producing consistent educational content aimed at practitioners in regional and suburban firms - the solicitors handling conveyancing, family law, and commercial leases outside Sydney and Melbourne. That's a large, underserved audience with real AI curiosity and no trusted voice. Evatt could own it.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3 style="font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 600; margin: 2.5rem 0 1rem;">Priority Fixes - If I Joined Tomorrow</h3>
+    <div class="cards">
+      <div class="card">
+        <div class="card-label">Priority 1</div>
+        <div class="card-title">One Customer Story Above the Fold</div>
+        <div class="card-body">Not a quote. A result. "Firm X reduced research time by Y hours per week." Make it Australian. Make it specific.</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Priority 2</div>
+        <div class="card-title">Comparison Page</div>
+        <div class="card-body">Own the "Evatt vs ChatGPT for legal work" search term before a competitor does. This page also converts the skeptic mid-funnel.</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Priority 3</div>
+        <div class="card-title">Make Ashley Visible</div>
+        <div class="card-body">One paragraph, one photo, one reason she built this. Legal professionals buy from people they trust. The founder story is an untapped asset.</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Priority 4</div>
+        <div class="card-title">Unify the CTA</div>
+        <div class="card-body">Pick demo-led or self-serve. Not both competing at the same level. One primary action. One hierarchy. Less friction.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Q2: 90 DAYS -->
+  <section class="section" id="q2">
+    <div class="section-header">
+      <div class="section-number">02</div>
+      <div class="section-title-block">
+        <div class="section-label">Question Two</div>
+        <h2 class="section-title">First 90 Days</h2>
+      </div>
+    </div>
+
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="timeline-period">Days 1-30</div>
+        <div class="timeline-title">Listen Before You Build</div>
+        <div class="timeline-body">Week one: no output. Only input. Talk to Ashley - understand what's working in sales, what objections keep coming up, what the product roadmap looks like for the next two quarters.<br><br>Weeks two and three: interview 15 to 20 customers. Not a survey. Actual conversations. Why did you sign up, what made you stay, what nearly made you leave, what would you tell another lawyer about this product.<br><br>Week four: interview three to five lost prospects. The reasons people didn't buy are more valuable than the reasons they did.<br><br><strong>Deliverable by day 30:</strong> Clear ICP profile, top three deal-killing objections, one retention-driving feature, one conversion hypothesis.</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-period">Days 31-60</div>
+        <div class="timeline-title">Build the Foundation</div>
+        <div class="timeline-body">ICP framework - documented, not assumed. Messaging framework - one version per segment. Customer story engine - one published case study by day 60. Founder content engine - a lightweight editorial process for turning Ashley's ideas into weekly LinkedIn content. Not ghostwriting. A system.</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-period">Days 61-90</div>
+        <div class="timeline-title">Launch and Measure</div>
+        <div class="timeline-body">Customer story live on website and in sales decks. Newsletter issue one published. LinkedIn content cadence running (three posts per week, founder-led). Sales enablement kit: one-pager, objection handling guide, competitive comparison sheet.</div>
+      </div>
+    </div>
+
+    <div class="callout">
+      Success at day 90: demo requests up from baseline. LinkedIn growth measurable. One customer story live. Sales team using PMM-produced assets. Newsletter at 200 subscribers minimum.
+    </div>
+  </section>
+
+  <!-- Q3: ICP -->
+  <section class="section" id="q3">
+    <div class="section-header">
+      <div class="section-number">03</div>
+      <div class="section-title-block">
+        <div class="section-label">Question Three</div>
+        <h2 class="section-title">ICP Strategy, Positioning &amp; GTM</h2>
+      </div>
+    </div>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Segment</th>
+          <th>Pain Level</th>
+          <th>Budget</th>
+          <th>Decision Speed</th>
+          <th>Expansion</th>
+          <th>Priority</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Solo Lawyers</strong></td>
+          <td>High</td>
+          <td>Low</td>
+          <td>Fast</td>
+          <td>Low</td>
+          <td><span class="badge badge-med">Medium</span></td>
+        </tr>
+        <tr>
+          <td><strong>Small Firms (2-15)</strong></td>
+          <td>High</td>
+          <td>Exists</td>
+          <td>Fast</td>
+          <td>Strong</td>
+          <td><span class="badge badge-high">High</span></td>
+        </tr>
+        <tr>
+          <td><strong>Mid-sized (15-75)</strong></td>
+          <td>High</td>
+          <td>Real budget</td>
+          <td>Moderate</td>
+          <td>Best</td>
+          <td><span class="badge badge-high">High</span></td>
+        </tr>
+        <tr>
+          <td><strong>Large Firms</strong></td>
+          <td>Medium</td>
+          <td>Large</td>
+          <td>Slow</td>
+          <td>High</td>
+          <td><span class="badge badge-low">Low</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="prose" style="margin-bottom: 2rem;">
+      <p><strong>Priority: small and mid-sized firms.</strong> They have the pain, the budget, and the decision-making speed. They are also the segment most likely to feel underserved - too small for Harvey, too serious for ChatGPT. Large firms are buying Harvey. Not worth pursuing until Evatt has enterprise compliance documentation and a named-firm reference list.</p>
+    </div>
+
+    <div class="callout">
+      The core positioning is not "AI for lawyers." Every tool says that.<br><br>
+      The message is: <strong>The AI associate that helps your firm research, draft and review legal work in minutes - without adding headcount.</strong>
+    </div>
+
+    <h3 style="font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 600; margin: 2.5rem 0 1rem;">Messaging Framework</h3>
+
+    <div class="framework">
+      <div class="framework-block">
+        <div class="fw-num">01</div>
+        <div class="fw-label">Problem</div>
+        <div class="fw-title">Time is being spent in the wrong place</div>
+        <div class="fw-body">Lawyers at small and mid-sized firms spend 30 to 40 percent of their time on research and document review that could be done faster.</div>
+      </div>
+      <div class="framework-block">
+        <div class="fw-num">02</div>
+        <div class="fw-label">Impact</div>
+        <div class="fw-title">Fewer billable hours. Slower turnaround.</div>
+        <div class="fw-body">That time cost translates directly into a competitive disadvantage against larger firms with more resources - and a ceiling on what the firm can take on.</div>
+      </div>
+      <div class="framework-block">
+        <div class="fw-num">03</div>
+        <div class="fw-label">Solution</div>
+        <div class="fw-title">Evatt handles the retrieval. You handle the judgment.</div>
+        <div class="fw-body">Research, drafting, and contract review in a fraction of the time. Outputs that are legally grounded, source-cited, and ready for attorney review.</div>
+      </div>
+      <div class="framework-block">
+        <div class="fw-num">04</div>
+        <div class="fw-label">Proof</div>
+        <div class="fw-title">Specific. Sourced. Lawyer-verified.</div>
+        <div class="fw-body">Customer outcome stat. Time saved per week. Accuracy benchmark. Testimonials from practising lawyers, not tech reviewers.</div>
+      </div>
+    </div>
+
+    <h3 style="font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 600; margin: 2.5rem 0 1rem;">Objection Handling</h3>
+    <div class="cards">
+      <div class="card">
+        <div class="card-label">Objection 1</div>
+        <div class="card-title">"What if it gets something wrong?"</div>
+        <div class="card-body">Evatt surfaces sources. Every output is reviewable. You stay in control. The lawyer signs off - not the AI.</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Objection 2</div>
+        <div class="card-title">"ChatGPT already does this."</div>
+        <div class="card-body">ChatGPT doesn't know Australian legal citation standards, doesn't stay updated on case law, and wasn't built for legal liability. Evatt was.</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Objection 3</div>
+        <div class="card-title">"We don't have time to learn a new tool."</div>
+        <div class="card-body">Onboarding takes 20 minutes. Most lawyers are productive in their first session. No IT team required.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Q4: FOUNDER BRAND -->
+  <section class="section" id="q4">
+    <div class="section-header">
+      <div class="section-number">04</div>
+      <div class="section-title-block">
+        <div class="section-label">Question Four</div>
+        <h2 class="section-title">Founder-Led Growth &amp; Personal Branding</h2>
+      </div>
+    </div>
+
+    <div class="prose">
+      <p><strong>What Ashley should own:</strong> Not "AI expert." Not "legal tech founder." Those are crowded positions.</p>
+      <p>Ashley should own: <em>Practical AI for Lawyers.</em> The person who explains what AI actually does in legal practice - and what it doesn't. Credible because she built the product. Trusted because she doesn't oversell.</p>
+      <p><strong>Platform priority:</strong> LinkedIn first. That's where Australian lawyers with buying authority spend professional time. Everything else - X, YouTube, podcasts - is secondary and should only be added once LinkedIn is working.</p>
+    </div>
+
+    <div class="cards" style="margin-top: 2rem;">
+      <div class="card">
+        <div class="card-label">Pillar 1</div>
+        <div class="card-title">Real Use Cases</div>
+        <div class="card-body">"Here's what Evatt did with a contract review last week." Specific. Grounded. Not hypothetical. These posts build credibility faster than any thought leadership.</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Pillar 2</div>
+        <div class="card-title">AI Myth-Busting</div>
+        <div class="card-body">"Why ChatGPT is not a legal research tool." Posts that challenge assumptions travel further than posts that confirm them.</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Pillar 3</div>
+        <div class="card-title">Behind the Product</div>
+        <div class="card-body">What we built, why, what we learned. Builds trust with lawyers evaluating whether to trust Ashley's judgment.</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Pillar 4</div>
+        <div class="card-title">Customer Stories</div>
+        <div class="card-body">Practising lawyers in their own words. Not testimonials. Stories with context, challenge, and outcome.</div>
+      </div>
+    </div>
+
+    <h3 style="font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 600; margin: 2.5rem 0 1rem;">30-Day LinkedIn Strategy</h3>
+
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="timeline-period">Week 1 - Establish POV</div>
+        <div class="timeline-title">Define the position before earning the audience</div>
+        <div class="timeline-body">Two posts on what AI can and cannot do in legal work. One post introducing Ashley's reason for building Evatt. No product pitching. Just perspective.</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-period">Week 2 - Customer Proof</div>
+        <div class="timeline-title">Let the results speak first</div>
+        <div class="timeline-body">One real outcome from a real user. Plus one post on the most common objection Ashley hears from lawyers evaluating the product.</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-period">Week 3 - Educational Depth</div>
+        <div class="timeline-title">Teach, don't sell</div>
+        <div class="timeline-body">One deep post on a specific use case (contract review, research, drafting). One post on a legal AI misconception that keeps coming up.</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-period">Week 4 - Engage</div>
+        <div class="timeline-title">Pull the audience in</div>
+        <div class="timeline-body">One question post ("What's the task you most wish AI could do for your firm?"). One recap of what the audience has been asking. One announcement or product update.</div>
+      </div>
+    </div>
+
+    <h3 style="font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 600; margin: 2.5rem 0 1rem;">Example Posts</h3>
+
+    <div class="linkedin-post">
+      <div class="post-author">
+        <div class="post-avatar">A</div>
+        <div>
+          <div class="post-author-name">Ashley - Founder, Evatt AI</div>
+          <div class="post-author-title">Making AI practical for Australian lawyers</div>
+        </div>
+      </div>
+      <div class="post-body">The way lawyers do legal research is changing.
+
+Not because AI is replacing legal judgment. It isn't.
+
+Because AI is eliminating the part of research that was never about judgment in the first place - scanning case after case to find the two that actually matter.
+
+A lawyer I spoke with last month described it this way: "I used to spend two hours finding the cases. Now I spend two hours actually thinking about them."
+
+That shift is the real story.
+
+AI doesn't make legal decisions. It handles the retrieval so lawyers can focus on the analysis.
+
+The firms that understand this distinction will move faster. The ones that don't will keep spending billable hours on work that doesn't require their expertise.</div>
+    </div>
+
+    <div class="linkedin-post">
+      <div class="post-author">
+        <div class="post-avatar">A</div>
+        <div>
+          <div class="post-author-name">Ashley - Founder, Evatt AI</div>
+          <div class="post-author-title">Making AI practical for Australian lawyers</div>
+        </div>
+      </div>
+      <div class="post-body">Most lawyers aren't afraid AI will replace them.
+
+They're afraid it'll be wrong.
+
+And confidently wrong. In front of a client. Or worse, in a filing.
+
+That fear is rational. The early wave of legal AI tools was built by people who understood AI but didn't understand legal practice. The outputs were impressive until they weren't.
+
+A few high-profile hallucination incidents in court documents did real damage to the category's credibility.
+
+What's changed: the tools built specifically for legal work - trained on legal data, designed for attorney review, with source citations - are meaningfully different from general-purpose AI.
+
+The hesitation isn't a problem to overcome with marketing.
+
+It's a problem to overcome with evidence.
+
+Show the output. Show the source. Show what the lawyer reviewed and what they changed. That's what builds trust in this category.</div>
+    </div>
+  </section>
+
+  <!-- Q5: NEWSLETTER -->
+  <section class="section" id="q5">
+    <div class="section-header">
+      <div class="section-number">05</div>
+      <div class="section-title-block">
+        <div class="section-label">Question Five</div>
+        <h2 class="section-title">Newsletter Strategy &amp; Execution</h2>
+      </div>
+    </div>
+
+    <div class="prose" style="margin-bottom: 2rem;">
+      <p><strong>Positioning:</strong> The Practical Legal AI Newsletter. Not a thought leadership vehicle. Not a product update. A weekly resource that makes a practising lawyer measurably better at navigating AI in their work. 5-minute read. Weekly. Written for lawyers who are curious but skeptical.</p>
+    </div>
+
+    <h3 style="font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 600; margin: 0 0 1.5rem;">Growth Path: 0 to 5,000 Subscribers</h3>
+
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="timeline-period">Stage 1 - 0 to 500</div>
+        <div class="timeline-title">Founder's LinkedIn audience</div>
+        <div class="timeline-body">Every newsletter issue gets a LinkedIn post summarising the best insight. CTA to subscribe. Ashley's existing network is the first distribution channel. No paid spend yet.</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-period">Stage 2 - 500 to 2,000</div>
+        <div class="timeline-title">Product signups</div>
+        <div class="timeline-body">Every Evatt user is a subscriber by default (with opt-out). The newsletter reinforces product value and reduces churn.</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-period">Stage 3 - 2,000 to 5,000</div>
+        <div class="timeline-title">Partnerships and referrals</div>
+        <div class="timeline-body">Law Society partnerships, legal podcast sponsorships, guest contributions from practising lawyers. Referral mechanic: share with a colleague, unlock a resource. Webinars feed the list.</div>
+      </div>
+    </div>
+
+    <h3 style="font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 600; margin: 2.5rem 0 1.5rem;">Issue One</h3>
+
+    <div class="newsletter-issue">
+      <div class="newsletter-header">
+        <div>
+          <div class="newsletter-masthead">The Practical Legal AI</div>
+          <div class="newsletter-subject">Subject: The AI tool your competitors are already using</div>
+          <div class="newsletter-subject" style="margin-top: 4px; font-style: italic;">Preview: And why most lawyers still aren't sure they should.</div>
+        </div>
+        <div class="newsletter-issue-num">Issue 001<br>June 2026</div>
+      </div>
+      <div class="newsletter-body">
+
+        <div class="newsletter-section">
+          <div class="newsletter-section-label">Opening Note</div>
+          <div class="newsletter-section-body" style="font-family: 'Playfair Display', serif; font-style: italic; font-size: 0.95rem; line-height: 1.8;">
+            Welcome to the first issue of the Evatt AI newsletter - a weekly resource for lawyers navigating AI in practice.<br><br>
+            No hype. No predictions about AI replacing lawyers. Just practical, honest guidance on what's working, what isn't, and what it means for your firm.<br><br>
+            - Ashley, Founder, Evatt AI
+          </div>
+        </div>
+
+        <div class="newsletter-section">
+          <div class="newsletter-section-label">This Week in Legal AI</div>
+          <div class="newsletter-section-title">Courts are beginning to formalise AI accountability</div>
+          <div class="newsletter-section-body">A US federal judge recently required lawyers to certify that any AI-generated content in filings had been reviewed for accuracy. It didn't make headlines for long, but it's a signal worth paying attention to.<br><br>Courts are beginning to create procedural frameworks around AI use - not to ban it, but to establish accountability. For practitioners, this means one thing: AI is a drafting and research tool, not a sign-off. Your judgment is still the product.</div>
+        </div>
+
+        <div class="newsletter-section">
+          <div class="newsletter-section-label">Workflow Tip</div>
+          <div class="newsletter-section-title">Contract review in under 10 minutes</div>
+          <div class="newsletter-section-body">Most lawyers spend 45 to 90 minutes on an initial contract review. Here's a faster starting point: paste the contract into Evatt and ask it to flag clauses that deviate from standard terms, summarise the indemnification structure, and identify any missing standard provisions.<br><br>You get a structured summary in under two minutes. You review, validate, and add judgment. The 90 minutes becomes 15.<br><br>Try it this week with a contract you're already working on.<br><br>
+          <strong style="font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.05em;">Prompt of the week:</strong> "Review this contract and identify: (1) any indemnification clauses that are unusually broad, (2) any missing provisions that are standard in [contract type] agreements, and (3) the top three risk areas I should flag for my client."</div>
+        </div>
+
+        <div class="newsletter-section">
+          <div class="newsletter-section-label">From the Product</div>
+          <div class="newsletter-section-title">Improved accuracy for multi-jurisdiction documents</div>
+          <div class="newsletter-section-body">This month we improved Evatt's contract review accuracy for multi-jurisdiction documents - particularly useful for firms handling cross-border commercial agreements. If you work with international clients, the updated version is worth trying on your next engagement letter or services agreement.</div>
+        </div>
+
+        <div class="newsletter-section">
+          <div class="newsletter-section-label">Call to Action</div>
+          <div class="newsletter-section-body">If you found this useful, forward it to one lawyer in your network who's still on the fence about AI.<br><br>If you want to see what Evatt can do for your firm's research and review workflows:</div>
+          <a class="newsletter-cta" href="#">Book a 20-minute demo &rarr;</a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Q6: LAUNCH -->
+  <section class="section" id="q6">
+    <div class="section-header">
+      <div class="section-number">06</div>
+      <div class="section-title-block">
+        <div class="section-label">Question Six</div>
+        <h2 class="section-title">Product Launch - AI Contract Review Scorer</h2>
+      </div>
+    </div>
+
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="timeline-period">4 Weeks Out - Pre-Launch</div>
+        <div class="timeline-title">Build anticipation, not awareness</div>
+        <div class="timeline-body">Waitlist with a clear value proposition: "Know the risk level of any contract in under 2 minutes." No feature jargon.<br><br>Founder teaser content on LinkedIn: three posts over three weeks. Week one - the problem. Week two - a sneak peek without the full reveal. Week three - what beta users are saying.<br><br>Beta group: 10 to 15 existing customers. Their feedback shapes the launch narrative. Their quotes become launch assets.</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-period">Launch Week</div>
+        <div class="timeline-title">Evidence over announcement</div>
+        <div class="timeline-body"><strong>Day 1:</strong> Founder LinkedIn post with a real example. Not a product screenshot - a before-and-after on an actual contract.<br><strong>Day 2:</strong> Newsletter issue dedicated to the launch. Educational framing.<br><strong>Day 3:</strong> Webinar. Live demo with a practising lawyer co-presenting. This is the trust signal.<br><strong>Day 5:</strong> Customer story from beta. Specific outcome, specific contract type, specific time saved.</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-period">Post-Launch</div>
+        <div class="timeline-title">Adoption is the real launch</div>
+        <div class="timeline-body">In-app onboarding flow. Three-email adoption sequence. Customer success outreach to high-value accounts with a personal note.</div>
+      </div>
+    </div>
+
+    <h3 style="font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 600; margin: 2.5rem 0 1rem;">Pricing Model</h3>
+    <div class="prose">
+      <p>Tiered subscription with a 14-day free trial on the full product. No feature-gating in the trial. Let lawyers experience the real thing.</p>
+    </div>
+    <div class="cards" style="margin-top: 1.5rem;">
+      <div class="card">
+        <div class="card-label">Tier 1</div>
+        <div class="card-title">Solo &amp; Small Firm</div>
+        <div class="card-body">Core research, drafting, and review. Monthly subscription, cancel anytime. Self-serve onboarding. Designed to remove friction from the first purchase decision.</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Tier 2</div>
+        <div class="card-title">Mid-Sized Firm</div>
+        <div class="card-body">Everything in Tier 1 plus Contract Review Scorer, multi-user access, and usage reporting. Demo-led sales motion. Higher ACV, longer relationship.</div>
+      </div>
+    </div>
+
+    <div class="callout">
+      Lawyers are competitive. The message is not "your competitors are beating you." That's cheap.<br><br>
+      The message is: "The lawyers moving fastest right now aren't working harder. They're reviewing contracts in a fraction of the time and spending the rest on the work that actually requires them." Aspiration, not fear.
+    </div>
+
+    <div class="prose">
+      <p><strong>PMM's role in ARR:</strong> PMM is not a support function. It's a revenue function. At Evatt's stage, PMM directly affects ARR through conversion rate on demo requests, expansion revenue, and reduced churn. The metric I'd own: demo-to-paid conversion rate.</p>
+    </div>
+  </section>
+
+  <!-- Q7: BUDGET -->
+  <section class="section" id="q7">
+    <div class="section-header">
+      <div class="section-number">07</div>
+      <div class="section-title-block">
+        <div class="section-label">Question Seven</div>
+        <h2 class="section-title">Team Design &amp; Prioritisation</h2>
+      </div>
+    </div>
+    <div class="prose" style="margin-bottom: 2rem;">
+      <p>As Evatt's first PMM, my primary responsibility would be creating clarity before creating scale.</p>
+      <p>In the first 6–12 months, I would focus on:</p>
+      <ul style="margin-left: 1.5rem; line-height: 2;">
+        <li>Customer research</li>
+        <li>ICP refinement</li>
+        <li>Messaging and positioning</li>
+        <li>Founder content systems</li>
+        <li>Product launches</li>
+        <li>Sales enablement</li>
+        <li>Customer proof and case studies</li>
+      </ul>
+      <p style="margin-top:1.5rem;">
+      The goal is to establish repeatable messaging and acquisition motions before investing heavily in channel expansion.
+      </p>
+    </div>
+
+    <div class="callout">
+      Early-stage companies rarely suffer from a lack of channels. They suffer from unclear positioning. My first priority would be ensuring Evatt's messaging is repeatable, differentiated, and proven before scaling distribution.
+    </div>
+
+    <h3 style="font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 600; margin: 0 0 1.5rem;">Recommended Hiring Sequence</h3>
+
+    <div class="hire-steps">
+      <div class="hire-step">
+        <div class="hire-month">Month 6</div>
+        <div class="hire-role">Content &amp; Marketing Associate</div>
+        <div class="hire-reason">Increase founder content capacity, customer storytelling, and execution velocity. This role helps operationalise the marketing engine without adding unnecessary complexity.</div>
+      </div>
+
+      <div class="hire-step">
+        <div class="hire-month">Month 12</div>
+        <div class="hire-role">Demand Generation Manager</div>
+        <div class="hire-reason">Once positioning and messaging are validated, focus shifts to scaling acquisition through SEO, partnerships, paid campaigns, and webinar programs.</div>
+      </div>
+
+      <div class="hire-step">
+        <div class="hire-month">Month 18-24</div>
+        <div class="hire-role">Customer Marketing Manager</div>
+        <div class="hire-reason">As the customer base grows, retention, advocacy, expansion revenue, onboarding, and customer education become dedicated growth levers.</div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- Q8: VIDEO -->
+<section class="section" id="q8">
+    <div class="section-header">
+      <div class="section-number">08</div>
+      <div class="section-title-block">
+        <div class="section-label">Question Eight</div>
+        <h2 class="section-title">Video Marketing &amp; Execution</h2>
+      </div>
+    </div>
+
+    <div class="video-cards">
+      <div class="video-card">
+        <div class="video-num">01</div>
+        <div class="video-hook">"I asked Evatt to research a case. Then I asked ChatGPT. Here's what happened."</div>
+        <div class="video-meta">
+          <span class="video-tag">Skeptical lawyers</span>
+          <span class="video-tag">ChatGPT users</span>
+        </div>
+        <div class="video-concept">Same research prompt. Two tools. Ashley reads both outputs on screen. ChatGPT produces a confident response with a fabricated citation. Evatt produces source-linked Australian case law. No commentary needed - the outputs speak. This video answers the "why not just use ChatGPT" objection better than any landing page copy ever could.</div>
+        <div class="video-cta-line">&rarr; "Run the same test on your next matter. Free trial - link in bio."</div>
+      </div>
+      <div class="video-card">
+        <div class="video-num">02</div>
+        <div class="video-hook">"A Victorian solicitor saved 11 hours last week. Here's the exact task."</div>
+        <div class="video-meta">
+          <span class="video-tag">Small firm practitioners</span>
+          <span class="video-tag">Regional lawyers</span>
+        </div>
+        <div class="video-concept">Specific, unglamorous legal work - a commercial lease review for a retail client. Ashley walks through the exact Evatt workflow: paste document, flag non-standard clauses, summarise risk exposure, draft client summary. Real task. Real time saved. The specificity of "Victorian solicitor" and "commercial lease" does more than any generic claim about efficiency.</div>
+        <div class="video-cta-line">&rarr; "What's the task costing you the most time this week?"</div>
+      </div>
+      <div class="video-card">
+        <div class="video-num">03</div>
+        <div class="video-hook">"The Law Society hasn't told you this yet. But it's coming."</div>
+        <div class="video-meta">
+          <span class="video-tag">Compliance-conscious lawyers</span>
+          <span class="video-tag">Firm principals</span>
+        </div>
+        <div class="video-concept">Australian courts and legal regulators are beginning to formalise AI use policies - slowly, but visibly. Ashley explains what's already happened in NSW and Federal Court contexts, what it means for how lawyers should be using AI now, and why firms that build responsible AI workflows today will be ahead when formal guidance arrives. Positions Evatt as the tool built with that accountability in mind.</div>
+        <div class="video-cta-line">&rarr; "Here's how Evatt is built for exactly this."</div>
+      </div>
+      <div class="video-card">
+        <div class="video-num">04</div>
+        <div class="video-hook">"I'm a lawyer who built an AI tool. Here's what I still won't let it do."</div>
+        <div class="video-meta">
+          <span class="video-tag">Trust-skeptical lawyers</span>
+          <span class="video-tag">Senior practitioners</span>
+        </div>
+        <div class="video-concept">Ashley speaks as a lawyer first, founder second. She names three things AI should never replace in legal practice - client judgment calls, ethical risk assessment, court advocacy - and explains why Evatt was deliberately not built to do those things. Counterintuitive for a product video. That's why it works. Lawyers trust people who understand limits more than people who promise everything.</div>
+        <div class="video-cta-line">&rarr; "This is what Evatt is actually for."</div>
+      </div>
+      <div class="video-card" style="grid-column: span 2;">
+        <div class="video-num">05</div>
+        <div class="video-hook">"Every junior lawyer in Australia is about to become significantly more expensive to not have."</div>
+        <div class="video-meta">
+          <span class="video-tag">Partners</span>
+          <span class="video-tag">Firm principals</span>
+          <span class="video-tag">Practice managers</span>
+        </div>
+        <div class="video-concept">Graduate legal salaries in Australia have risen sharply. Small and mid-sized firms are competing for the same talent as top-tier firms and losing. Ashley reframes the conversation: the firms that figure out AI leverage first aren't replacing juniors - they're making the ones they have capable of doing the work of two. Specific numbers: median graduate salary, average hours spent on research per week, what that costs annually. Then what Evatt changes about that equation. This targets the economic decision-maker, not the end user, and it arrives as a business case rather than a product pitch.</div>
+        <div class="video-cta-line">&rarr; "Book a 20-minute demo. We'll show you the numbers for your firm size."</div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="footer-title">Vishnu - PMM Assignment</div>
+  <div class="footer-sub" style="margin-top: 0.5rem;">Evatt AI &middot; June 2026 &middot; 8 Questions &middot; One point of view</div>
+</footer>
+
+<script>
+  // INTERSECTION OBSERVER for section reveal
+  const sections = document.querySelectorAll('.section');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        // Trigger budget bars when Q7 comes into view
+        if (entry.target.id === 'q7') {
+          setTimeout(() => {
+            document.querySelectorAll('.budget-bar-fill').forEach(bar => {
+              bar.style.width = bar.dataset.width + '%';
+            });
+          }, 200);
+        }
+      }
+    });
+  }, { threshold: 0.1 });
+
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
